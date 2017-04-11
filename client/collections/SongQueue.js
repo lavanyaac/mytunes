@@ -2,35 +2,13 @@
 var SongQueue = Backbone.Collection.extend({
 
   model: SongModel,
-
-  // initialize: function() {
-  // // enqueue - add - 
-  // // dequeue -
-  //  remove 
-  // //add or remove event,  render the view
-  // // this.model.on('enqueue', this.render, this);
-  // // this.model.on('dequeue', this.render, this);
-  //   console.log(this);
-  //   this.on('add', function(){this.playFirst();} );
-  // // this.collection.forEach(function(songModel){
-  // // 	this.playFirst(songModel);
-  // // });
-  // },
-  // // playFirst: function(song){
-  // //   if(this.collection.length === 1){
-  // // 		song.play();
-  // // 	}
-  // // },
-  // addder : function(song){
-
-  //  }
-  initialize:function(){
-  	this.on('add', this.adder, this);
-  	this.on('ended', this.remover, this);
-  	this.on('dequeue', this.remover, this);
+  
+  initialize: function(){
+  	this.on('add', this.enqueue, this);
+  	this.on('ended', this.playNext, this);
+  	this.on('dequeue', this.dequeue, this);
   },
-  adder: function(){
-  	this.add();
+  enqueue: function(){
   	if(this.length === 1){
   		this.playFirst();
   	}
@@ -38,12 +16,19 @@ var SongQueue = Backbone.Collection.extend({
   playFirst: function(){
   	this.at(0).play();
   },
-  remover: function(song){
-  	this.remove(this.at(0));
-  	if(this.length === 1){
-  		this.playFirst();
-  	}
+  dequeue: function(song){
+  	if(this.at(0) === song){
+      this.playNext();
+    }else{
+  		this.remove(song);
+    }
+  },
+  playNext: function(){
+    this.shift();
+    if(this.length >= 1){
+      this.playFirst();
+    } else{
+      this.trigger('stop');
+    }
   }
-
-  
 });
